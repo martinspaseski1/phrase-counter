@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Repeating Phrase Checker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <h2>Repeating Phrase Checker</h2>
+
+    <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+    <button onclick="checkRepeatingPhrases()">Check Phrases</button>
+
+    <div class="results" id="results"></div>
+    <h3>Highlighted Text:</h3>
+    <div class="highlighted-output" id="highlightedText"></div>
+  </div>
+
+  <script>
+    function checkRepeatingPhrases() {
+      const text = document.getElementById('textInput').value;
+      const words = text.toLowerCase().match(/\b\w+\b/g);
+      const phraseCounts = {};
+      const minPhraseLength = 2;
+      const maxPhraseLength = 6; // You can adjust the max length
+
+      // Collect phrases from 2 to max length
+      for (let len = minPhraseLength; len <= maxPhraseLength; len++) {
+        for (let i = 0; i <= words.length - len; i++) {
+          const phrase = words.slice(i, i + len).join(' ');
+          phraseCounts[phrase] = (phraseCounts[phrase] || 0) + 1;
+        }
+      }
+
+      const repeatingPhrases = Object.entries(phraseCounts)
+        .filter(([_, count]) => count > 1)
+        .sort((a, b) => b[1] - a[1]);
+
+      // Display results
+      const resultsDiv = document.getElementById('results');
+      if (repeatingPhrases.length === 0) {
+        resultsDiv.innerHTML = "<p>No repeating phrases found.</p>";
+      } else {
+        resultsDiv.innerHTML = "<h3>Repeating Phrases:</h3>" +
+          repeatingPhrases.map(([phrase, count]) =>
+            `<div><strong>${phrase}</strong>: ${count} times</div>`
+          ).join('');
+      }
+
+      // Highlight in original text
+      let highlighted = text;
+      repeatingPhrases.forEach(([phrase]) => {
+        const regex = new RegExp(`\\b${phrase.replace(/\s+/g, '\\s+')}\\b`, 'gi');
+        highlighted = highlighted.replace(regex, match => `<span class="highlight">${match}</span>`);
+      });
+
+      document.getElementById('highlightedText').innerHTML = highlighted;
+    }
+  </script>
+
+</body>
+
+</html>
